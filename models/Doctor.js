@@ -17,6 +17,10 @@ const Doctor = db.define('doctor', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  desc:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   gender:{
     type: DataTypes.STRING,
     allowNull: false,
@@ -26,6 +30,14 @@ const Doctor = db.define('doctor', {
     allowNull: false,
   },
   specialist:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  fullname:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  img: {
     type: DataTypes.STRING,
     allowNull: false,
   }

@@ -14,7 +14,7 @@ const insert = async (req, res) => {
             // console.log(data.dataValues)
             // data.role = 'admin'
             // await data.save();
-            res.status(200).send('Successfully Signed Up')
+            res.status(200).send({id: data.id})
         }
         else {
             return res.status(404).send("password did not match");
@@ -40,7 +40,7 @@ const find = async (req, res) => {
                     httpOnly: true,
                 }).status(200).send({ status: true, username: data.dataValues.username, role: data.dataValues.role })
             } else {
-                return res.status(400).send('Incorrect Credentials')
+                return res.status(400).send({status: false, message: "Incorrect username and password"})
             }
         }
     } catch (error) {
@@ -48,9 +48,20 @@ const find = async (req, res) => {
     }
 }
 
-const getAllUser = async (req, res) => {
+const getAll = async (req, res) => {
     try {
-        const data = await User.findAll({})
+        const data = await User.findAll({where: {role: 'user'}})
+        res.status(200).send(data)
+
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+
+}
+
+const findOne = async (req, res) => {
+    try {
+        const data = await User.findOne({where: {id: req.params.id}})
         res.status(200).send(data)
 
     } catch (error) {
@@ -62,9 +73,8 @@ const getAllUser = async (req, res) => {
 
 const update = async (req, res) => {
     try {
-        const id = req.user.id;
+        const id = req.params.id;
         // const { username, email, password } = req.body;
-
         await User.update(req.body, { where: { id: id } })
         res.status(200).send("Successfully updated user")
     } catch (error) {
@@ -74,13 +84,18 @@ const update = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const id = req.user.id;
-        console.log(id)
+        const id = req.params.id;
         try {
-            await User.destroy({ where: { id: id } })
-            res.status(200).send('Successfully deleted user ' + req.user.username);
+            const userRes = await User.findOne({ where: { id: id } })
+            if(userRes !== null){
+                await User.destroy({ where: { id: id } })
+                res.status(200).send(userRes);
+            }else{
+                res.status(404).send('Not valid User');
+            }
+
         } catch (error) {
-            res.status(404).send(error)
+            res.status(500).send(error)
         }
     } catch (error) {
         res.status(500).send("You are not allowed to delete this user")
@@ -90,7 +105,8 @@ const deleteUser = async (req, res) => {
 module.exports = {
     insert,
     find,
-    getAllUser,
+    getAll,
     update,
     deleteUser,
+    findOne
 }

@@ -5,17 +5,17 @@ const User = require('../models/User');
 
 
 const insert = async (req, res) => {
-    const { username, email, password, confirm_password, first_name, last_name, gender, phone_number, age, address, position} = req.body;
+    const { username, email, password, confirm_password, full_name, gender, phone_number, age, address, position, desc } = req.body;
     try {
-            const salt = await bcrypt.genSalt(10);
-            const hashPassword = await bcrypt.hash(password, salt);
-            const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
-            const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword, first_name, last_name });
-            const staffData = await Staff.create({ gender,phone_number, age, address, position, userId:userData.id });
-            // console.log(data.dataValues)
-            userData.role = 'staff'
-            await userData.save(); 
-            res.status(200).send('Successfully Signed Up')
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(password, salt);
+        const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
+        const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword });
+        const staffData = await Staff.create({ gender, phone_number, age, address, position, userId: userData.id, desc, full_name });
+        // console.log(data.dataValues)
+        userData.role = 'staff'
+        await userData.save();
+        res.status(200).send({ id: userData.id })
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -45,7 +45,57 @@ const find = async (req, res) => {
     }
 }
 
+const getAll = async (req, res) => {
+    try {
+        const data = await User.findAll({ include: Staff })
+        const doctorData = data.filter(doctor => doctor.role === 'staff')
+        res.status(200).send(doctorData)
+    }
+    catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
+
+const deleteOne = async (req, res) => {
+    try {
+        User.destroy({ where: { id: req.params.id } })
+        await Staff.destroy({ where: { userId: req.params.id } })
+        res.status(200).send('Successfully deleted')
+    }
+    catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
+const update = async (req, res) => {
+    try {
+        const id = req.params.id;
+        // const { username, email, password } = req.body;
+        await User.update(req.body, { where: { id: id } })
+        await Staff.update(req.body, { where: { userId: id } })
+        res.status(200).send("Successfully updated user")
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+const findOne = async (req, res) => {
+    try {
+        const id = req.params.id
+        const data = await User.findOne({ where: { id: id }, include: Staff })
+        res.status(200).send(data)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+
 module.exports = {
     insert,
-    find
+    find,
+    getAll,
+    deleteOne,
+    update,
+    findOne
 }

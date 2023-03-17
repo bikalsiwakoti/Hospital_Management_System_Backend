@@ -7,7 +7,7 @@ const upload = multer({
     },
     filename: function(req,file,cb){
       // console.log(file)
-      cb(null,Date.now() +file.originalname)
+      cb(null,""+file.originalname)
     }
   })
 }).single("img")

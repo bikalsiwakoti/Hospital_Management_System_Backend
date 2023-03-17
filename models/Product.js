@@ -13,18 +13,18 @@ const Product = db.define('product', {
     allowNull: false
   },
   price: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   availableQuantity: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   desc: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  discount: {
+  genre: {
     type: DataTypes.STRING,
     allowNull: false,
   },

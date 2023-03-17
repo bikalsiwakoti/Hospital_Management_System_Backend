@@ -20,6 +20,7 @@ const app = express();
 app.use(express.json());
 app.use(cookies());
 app.use(express.urlencoded({ extended: true }));
+app.use("/images", express.static('image'))
 
 
 app.use("/api/user", userRoute)

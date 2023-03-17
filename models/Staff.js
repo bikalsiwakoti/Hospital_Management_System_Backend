@@ -1,31 +1,39 @@
-const {DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const db = require("../dbConn/conn")
 
 const Staff = db.define('staff', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    allowNull:false,
+    allowNull: false,
     primaryKey: true,
-  },
-  phone_number:{
+  }, 
+  full_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  }, 
+  phone_number: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
   },
-  age:{
+  age: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  gender:{
+  desc: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  address:{
+  gender: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  position:{
+  address: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  position: {
     type: DataTypes.STRING,
     allowNull: false,
   }

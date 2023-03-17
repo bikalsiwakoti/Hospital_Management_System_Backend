@@ -5,17 +5,18 @@ const User = require('../models/User');
 
 
 const insert = async (req, res) => {
-    const { username, email, password, confirm_password, first_name, last_name, gender, phone_number, age, address, specialist} = req.body;
+    const { username, email, password, confirm_password, gender, phone_number, age, address, specialist, desc, fullname} = req.body;
+    const img = req.file.filename
     try {
             const salt = await bcrypt.genSalt(10);
             const hashPassword = await bcrypt.hash(password, salt);
             const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
-            const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword, first_name, last_name });
-            const doctorData = await Doctor.create({ gender,phone_number, age, address, specialist, userId:userData.id });
+            const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword});
+            await Doctor.create({ gender,phone_number, age, address, specialist, userId:userData.id, desc, fullname,  img: img });
             // console.log(data.dataValues)
             userData.role = 'doctor'
             await userData.save(); 
-            res.status(200).send('Successfully Signed Up')
+            res.status(200).send({id: userData.id})
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -45,7 +46,31 @@ const find = async (req, res) => {
     }
 }
 
+const getAll = async (req, res) => {
+    try {
+        const data = await User.findAll({include: Doctor})
+        const doctorData = data.filter(doctor=> doctor.role === 'doctor')
+        res.status(200).send(doctorData)
+        }
+     catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
+const deleteOne = async (req, res) => {
+    try {
+        User.destroy({where: {id: req.params.id}})
+        await Doctor.destroy({where: {userId: req.params.id}})
+        res.status(200).send('Successfully deleted')
+        }
+     catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
 module.exports = {
     insert,
-    find
+    find,
+    getAll,
+    deleteOne
 }

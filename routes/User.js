@@ -3,11 +3,10 @@ const userTableControllers = require('../controllers/userTable');
 const auth = require('../middleware/authUser');
 
 router.post("/registerUser", userTableControllers.insert)
-router.get("/getAllUser", userTableControllers.getAllUser)
 router.post("/loginUser", userTableControllers.find)
-router.put("/updateUser",auth.verifyUser, userTableControllers.update)
-router.delete("/deleteUser",auth.verifyUser, userTableControllers.deleteUser)
-
-
+router.put("/updateUser/:id", userTableControllers.update)
+router.get("/getAllUser", userTableControllers.getAll)
+router.get("/findOneUser/:id", userTableControllers.findOne)
+router.delete("/deleteUser/:id", userTableControllers.deleteUser)
 
 module.exports = router;

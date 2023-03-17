@@ -1,11 +1,14 @@
 const Product = require("../models/Product")
+const Admin = require("../models/Admin")
 
 const insert = async (req, res) => {
   try {
+    console.log(req.body)
     const img = req.file.filename
-    const adminId = req.user.id;
-    const data = await Product.create({ ...req.body, img: img, adminId })
-    res.status(200).send("Successfully posted")
+    // const userId = req.user.id;
+    // const adminId = await Admin.findOne({where: {userId: userId}})
+    const productData = await Product.create({ ...req.body, img: img, adminId: 1 })
+    res.status(200).send({id: productData.id})
 
   } catch (error) {
     res.status(500).send("Product Post failed" + error)
