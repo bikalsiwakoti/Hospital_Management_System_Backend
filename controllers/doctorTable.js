@@ -2,21 +2,22 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Doctor = require('../models/Doctor');
 const User = require('../models/User');
+const nodemailer = require("nodemailer");
 
 
 const insert = async (req, res) => {
-    const { username, email, password, confirm_password, gender, phone_number, age, address, specialist, desc, fullname} = req.body;
+    const { username, email, password, confirm_password, gender, phone_number, age, address, specialist, desc, fullname, price } = req.body;
     const img = req.file.filename
     try {
-            const salt = await bcrypt.genSalt(10);
-            const hashPassword = await bcrypt.hash(password, salt);
-            const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
-            const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword});
-            await Doctor.create({ gender,phone_number, age, address, specialist, userId:userData.id, desc, fullname,  img: img });
-            // console.log(data.dataValues)
-            userData.role = 'doctor'
-            await userData.save(); 
-            res.status(200).send({id: userData.id})
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(password, salt);
+        const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
+        const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword });
+        await Doctor.create({ gender, phone_number, age, address, specialist, userId: userData.id, desc, fullname, img: img, price });
+        // console.log(data.dataValues)
+        userData.role = 'doctor'
+        await userData.save();
+        res.status(200).send({ id: userData.id })
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -48,22 +49,62 @@ const find = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const data = await User.findAll({include: Doctor})
-        const doctorData = data.filter(doctor=> doctor.role === 'doctor')
+        const data = await User.findAll({ include: Doctor })
+        const doctorData = data.filter(doctor => doctor.role === 'doctor')
         res.status(200).send(doctorData)
-        }
-     catch (error) {
+    }
+    catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
+const getOne = async (req, res) => {
+    try {
+        const data = await User.findAll({ include: Doctor })
+        const doctorData = data.filter(doctor => doctor.id === Number(req.params.id))
+        res.status(200).send(doctorData)
+    }
+    catch (error) {
         res.status(500).send(error.message)
     }
 }
 
 const deleteOne = async (req, res) => {
     try {
-        User.destroy({where: {id: req.params.id}})
-        await Doctor.destroy({where: {userId: req.params.id}})
+        User.destroy({ where: { id: req.params.id } })
+        await Doctor.destroy({ where: { userId: req.params.id } })
         res.status(200).send('Successfully deleted')
-        }
-     catch (error) {
+    }
+    catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
+const sendMail = async (req, res) => {
+    try {
+        let testAccount = await nodemailer.createTestAccount();
+
+        let transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'bikal99999@gmail.com',
+                pass: 'cnxxrjqtmegkopmk'
+            },
+        });
+
+        let info = await transporter.sendMail({
+            from: '"MedCare" <bikal99999@gmail.com>', // sender address
+            to: req.body.email,
+            subject: req.body.subject,
+            text: req.body.text,
+            html: req.body.text,
+        });
+
+        res.status(200).send('Successfully Send Mail')
+    }
+    catch (error) {
         res.status(500).send(error.message)
     }
 }
@@ -72,5 +113,7 @@ module.exports = {
     insert,
     find,
     getAll,
-    deleteOne
+    deleteOne,
+    getOne,
+    sendMail
 }

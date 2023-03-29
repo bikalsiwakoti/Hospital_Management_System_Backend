@@ -12,6 +12,9 @@ const doctorRoute = require("./routes/Doctor")
 const productRoute = require("./routes/Product")
 const patientRoute = require("./routes/Patient")
 const attendanceRoute = require("./routes/Attendance")
+const cartRoute = require("./routes/Cart")
+const orderRoute = require("./routes/Order")
+const paymentRoute = require("./routes/Payment")
 
 const PORT = process.env.PORT || 5000;
 
@@ -30,6 +33,9 @@ app.use("/api/doctor", doctorRoute)
 app.use("/api/product", productRoute)
 app.use("/api/patient", patientRoute)
 app.use("/api/attendance", attendanceRoute)
+app.use("/api/cart", cartRoute)
+app.use("/api/order", orderRoute)
+app.use("/api/payment", paymentRoute)
 
 
 

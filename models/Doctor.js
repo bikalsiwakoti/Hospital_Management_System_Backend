@@ -40,6 +40,10 @@ const Doctor = db.define('doctor', {
   img: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  price: {
+    type: DataTypes.STRING,
+    allowNull: false,
   }
 })
 

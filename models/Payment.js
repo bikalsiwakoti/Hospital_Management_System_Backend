@@ -16,10 +16,15 @@ const Payment = db.define('payment', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  paymentMethos: {
+  paymentMethod: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  token: {
     type: DataTypes.STRING,
     allowNull: false,
   }
+  
 })
 
 module.exports = Payment;
