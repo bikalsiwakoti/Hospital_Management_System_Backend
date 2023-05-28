@@ -9,12 +9,14 @@ const Payment= require('../models/Payment');
 const Order= require('../models/Order');
 const Shipping= require('../models/Shipping');
 const Attendance= require('../models/Attendance');
+const Cart= require('../models/Cart');
 
 //admin
 User.hasOne(Admin);
 
 //staff
 User.hasOne(Staff);
+User.hasOne(Cart);
 
 //doctor
 User.hasOne(Doctor);

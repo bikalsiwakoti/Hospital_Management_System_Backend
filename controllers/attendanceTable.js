@@ -1,9 +1,11 @@
 const Attendance = require("../models/Attendance")
+const Staff = require("../models/Staff")
 
 const insert = async (req, res) => {
   try {
-    const img = req.file.filename
-    const staffId = req.user.id;
+    const userId = req.user.id;
+    const staffDetails = await Staff.findOne({where: {userId}})
+    const staffId = staffDetails.id
     const data = await Attendance.create({ ...req.body, staffId })
     res.status(200).send("Successfully posted")
 
@@ -24,7 +26,23 @@ const getAll = async (req, res) => {
 
 const getOne = async (req, res) => {
   try {
-    const data = await Attendance.findOne({ where: { id: req.params.id } })
+    const userId = req.user.id;
+    const staffDetails = await Staff.findOne({where: {userId}})
+    const staffId = staffDetails.id
+    const data = await Attendance.findAll({ where: { staffId } })
+    res.status(200).send(data)
+
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+}
+
+const getOnebyid = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const staffDetails = await Staff.findOne({where: {userId}})
+    const staffId = staffDetails.id
+    const data = await Attendance.findAll({ where: { staffId } })
     res.status(200).send(data)
 
   } catch (error) {
@@ -46,4 +64,5 @@ module.exports = {
   insert,
   getAll,
   getOne,
+  getOnebyid
 }

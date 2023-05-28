@@ -2,22 +2,29 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Staff = require('../models/Staff');
 const User = require('../models/User');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 
 const insert = async (req, res) => {
     const { username, email, password, confirm_password, full_name, gender, phone_number, age, address, position, desc } = req.body;
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(password, salt);
-        const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
-        const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword });
-        const staffData = await Staff.create({ gender, phone_number, age, address, position, userId: userData.id, desc, full_name });
-        // console.log(data.dataValues)
-        userData.role = 'staff'
-        await userData.save();
-        res.status(200).send({ id: userData.id })
+        if (password === confirm_password) {
+
+            const salt = await bcrypt.genSalt(10);
+            const hashPassword = await bcrypt.hash(password, salt);
+            const confirmHashPassword = await bcrypt.hash(confirm_password, salt);
+            const userData = await User.create({ username, email, password: hashPassword, confirm_password: confirmHashPassword });
+            const staffData = await Staff.create({ gender, phone_number, age, address, position, userId: userData.id, desc, full_name });
+            // console.log(data.dataValues)
+            userData.role = 'staff'
+            await userData.save();
+            res.status(200).send({ id: userData.id })
+        } else {
+            return res.status(404).send("password did not match");
+        }
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).send(error.errors[0].message);
     }
 }
 
@@ -47,7 +54,19 @@ const find = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const data = await User.findAll({ include: Staff })
+        const {name} = req.query;
+        const data = await User.findAll({
+            include: {
+                model: Staff,
+                where: {
+                    [Op.or]: [
+                        { full_name: { [Op.iLike]: `%${name}%` } },
+                        { phone_number: { [Op.iLike]: `%${name}%` } },
+                        { position: { [Op.iLike]: `%${name}%` } }
+                      ]
+                }
+            }
+        })
         const doctorData = data.filter(doctor => doctor.role === 'staff')
         res.status(200).send(doctorData)
     }

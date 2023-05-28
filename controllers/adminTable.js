@@ -36,6 +36,7 @@ const find = async (req, res) => {
             if (comparePassword) {
                 return res.cookie('login_token', token, {
                     httpOnly: true,
+                    maxAge: 25920000000
                 }).status(200).send({ status: true, username: data.dataValues.username, role: data.dataValues.role })
             } else {
                 return res.status(400).send('Incorrect Credentials')

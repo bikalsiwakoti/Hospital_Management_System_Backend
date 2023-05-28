@@ -1,5 +1,8 @@
 const Patient = require('../models/Patient')
 const Doctor = require('../models/Doctor')
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
 
 const addDetails = async (req, res) => {
   try {
@@ -15,7 +18,16 @@ const addDetails = async (req, res) => {
 
 const getDetailsByDoctor = async (req, res) => {
   try {
-    const data = await Patient.findAll({})
+    const { name } = req.query
+    const data = await Patient.findAll({
+      where: {
+        [Op.or]: [
+          { firstName: { [Op.iLike]: `%${name}%` } },
+          { lastName: { [Op.iLike]: `%${name}%` } },
+          { lastName: { [Op.iLike]: `%${name}%` } }
+        ]
+      }
+    })
     res.status(200).send(data)
   } catch (error) {
     res.status(500).send(error)

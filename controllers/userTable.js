@@ -20,9 +20,10 @@ const insert = async (req, res) => {
             return res.status(404).send("password did not match");
         }
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).send(error.errors[0].message);
     }
 }
+
 
 const find = async (req, res) => {
     try {
@@ -38,6 +39,7 @@ const find = async (req, res) => {
             if (comparePassword) {
                 return res.cookie('login_token', token, {
                     httpOnly: true,
+                    maxAge: 25920000000
                 }).status(200).send({ status: true, username: data.dataValues.username, role: data.dataValues.role })
             } else {
                 return res.status(400).send({status: false, message: "Incorrect username and password"})
@@ -58,6 +60,17 @@ const getAll = async (req, res) => {
     }
 
 }
+const userLength = async (req, res) => {
+    try {
+        const data = await User.findAll({where: {role: 'user'}})
+        res.status(200).send(data)
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+
+}
+
+
 
 const findOne = async (req, res) => {
     try {
@@ -108,5 +121,6 @@ module.exports = {
     getAll,
     update,
     deleteUser,
-    findOne
+    findOne,
+    userLength
 }

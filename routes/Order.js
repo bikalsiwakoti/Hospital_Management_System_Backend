@@ -3,10 +3,10 @@ const auth = require('../middleware/authUser');
 const orderTableControllers = require('../controllers/orderTable');
 
 router.post("/addOrder",auth.verifyUser, orderTableControllers.insert)
-router.get("/getAllOrder", orderTableControllers.getAll)
-router.get("/getAllOrderOfUser", orderTableControllers.getAllOfOneUser)
+router.get("/getAllOrder",auth.verifyAdmin, orderTableControllers.getAll)
+router.get("/getAllOrderOfUser",auth.verifyUser, orderTableControllers.getAllOfOneUser)
 router.get("/getOneOrder/:id", orderTableControllers.getOne)
-router.delete("/deleteOneOrder/:id",auth.verifyUser, orderTableControllers.deleteOne)
-router.patch("/updateOrder/:id", orderTableControllers.updateOne)
+router.delete("/deleteOneOrder/:id",auth.verifyAdmin,auth.verifyUser, orderTableControllers.deleteOne)
+router.patch("/updateOrder/:id",auth.verifyAdmin, orderTableControllers.updateOne)
 
 module.exports = router;

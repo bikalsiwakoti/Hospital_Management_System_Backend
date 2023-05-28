@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const Doctor = require('../models/Doctor');
 const User = require('../models/User');
 const nodemailer = require("nodemailer");
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 
 const insert = async (req, res) => {
@@ -49,7 +51,17 @@ const find = async (req, res) => {
 
 const getAll = async (req, res) => {
     try {
-        const data = await User.findAll({ include: Doctor })
+        const { name } = req.query;
+        const data = await User.findAll({
+            include: {
+                model: Doctor,
+                where: {
+                    fullname: {
+                        [Op.iLike]: `%${name}%`
+                    }
+                }
+            }
+        });
         const doctorData = data.filter(doctor => doctor.role === 'doctor')
         res.status(200).send(doctorData)
     }
@@ -60,9 +72,8 @@ const getAll = async (req, res) => {
 
 const getOne = async (req, res) => {
     try {
-        const data = await User.findAll({ include: Doctor })
-        const doctorData = data.filter(doctor => doctor.id === Number(req.params.id))
-        res.status(200).send(doctorData)
+        const data = await User.findAll({ where: { id: req.params.id }, include: Doctor })
+        res.status(200).send(data)
     }
     catch (error) {
         res.status(500).send(error.message)
@@ -89,13 +100,13 @@ const sendMail = async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'bikal99999@gmail.com',
-                pass: 'cnxxrjqtmegkopmk'
+                user: 'bikalsiwakoti21@gmail.com',
+                pass: 'kffhxhrmafqhuguv'
             },
         });
 
         let info = await transporter.sendMail({
-            from: '"MedCare" <bikal99999@gmail.com>', // sender address
+            from: '"MedCare" <bikalsiwakoti21@gmail.com>', // sender address
             to: req.body.email,
             subject: req.body.subject,
             text: req.body.text,
@@ -109,11 +120,31 @@ const sendMail = async (req, res) => {
     }
 }
 
+const updateOne = async (req, res) => {
+    try {
+        console.log(req.file)
+        if (req.file === undefined) {
+            const data = await User.update({ ...req.body }, { where: { id: req.params.id } })
+            const doctorData = await Doctor.update({ ...req.body }, { where: { userId: req.params.id } })
+            res.status(200).send("Successfully updated")
+
+        } else {
+            const data = await User.update({ ...req.body }, { where: { id: req.params.id } })
+            const doctorData = await Doctor.update({ ...req.body, img: req.file.filename }, { where: { userId: req.params.id } })
+            res.status(200).send("Successfully updated")
+        }
+
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+}
+
 module.exports = {
     insert,
     find,
     getAll,
     deleteOne,
     getOne,
-    sendMail
+    sendMail,
+    updateOne
 }

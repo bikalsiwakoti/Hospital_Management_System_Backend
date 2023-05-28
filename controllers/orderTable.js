@@ -1,10 +1,12 @@
 const Order = require("../models/Order")
 const Payment = require("../models/Payment")
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 const insert = async (req, res) => {
   try {
     console.log(req.body)
-    const data = await Order.create({ ...req.body,status:'Pending', userId: req.user.id })
+    const data = await Order.create({ ...req.body, status: 'Pending', userId: req.user.id })
     res.status(200).send({ id: data.id })
   } catch (error) {
     res.status(500).send("Product Post failed" + error)
@@ -23,7 +25,16 @@ const getAllOfOneUser = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-    const data = await Order.findAll({ include: Payment })
+    const {name} = req.query;
+    const data = await Order.findAll({
+      include: Payment, where: {
+          [Op.or]: [
+            { firstname: { [Op.iLike]: `%${name}%` } },
+            { lastname: { [Op.iLike]: `%${name}%` } },
+            { phonenumber: { [Op.iLike]: `%${name}%` } }
+          ]
+      }
+    })
     res.status(200).send(data)
 
   } catch (error) {

@@ -21,7 +21,7 @@ const Product = db.define('product', {
     allowNull: false,
   },
   desc: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   genre: {

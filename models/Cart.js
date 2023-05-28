@@ -28,10 +28,6 @@ const Cart = db.define('cart', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  userId:{
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
   genre: {
     type: DataTypes.STRING,
     allowNull: false,
